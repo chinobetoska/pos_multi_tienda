@@ -486,36 +486,38 @@ class Reports extends CI_Controller
 
         
         $paid_sort 			= '';
+        $paid_order_ids     = array();
         if($url_paid_by != '-') {
-	        
-	        $ordPayResult 	= $this->db->query("SELECT order_id FROM order_payments WHERE created_datetime >= '$start_date' AND created_datetime <= '$end_date' AND payment_method_id = '$url_paid_by' ");
+
+	        $ordPayResult 	= $this->db->query("SELECT order_id FROM order_payments WHERE created_datetime >= ? AND created_datetime <= ? AND payment_method_id = ?", array($start_date, $end_date, $url_paid_by));
 	        $ordPayData 	= $ordPayResult->result();
 	        for($k = 0; $k < count($ordPayData); $k++) {
-		        $ordPay_order_id 	= $ordPayData[$k]->order_id;
-		        
-		        $paid_sort 			.= "id = '$ordPay_order_id' || ";
-		        
+		        $ordPay_order_id 	= (int)$ordPayData[$k]->order_id;
+		        $paid_order_ids[]   = $ordPay_order_id;
 		        unset($ordPay_order_id);
 	        }
 	        unset($ordPayData);
 	        unset($ordPayResult);
-	        
-	        if(strlen($paid_sort) > 0) {
-		        $paid_sort 			= trim($paid_sort, "|| ");
-		        $paid_sort 			= "($paid_sort) AND ";
+
+	        if(count($paid_order_ids) > 0) {
+		        $paid_sort 			= "id IN (" . implode(',', $paid_order_ids) . ") AND ";
+	        } else {
+	            $paid_sort          = "id IN (0) AND ";
 	        }
         }
-        
-        
+
+
 
         $outlet_sort = '';
+        $outlet_params = array($start_date, $end_date);
         if ($url_outlet == '-') {
             $outlet_sort = ' AND outlet_id > 0 ';
         } else {
-            $outlet_sort = " AND outlet_id = '$url_outlet' ";
+            $outlet_sort = " AND outlet_id = ? ";
+            $outlet_params[] = $url_outlet;
         }
 
-        $orderResult = $this->db->query("SELECT * FROM orders WHERE $paid_sort ordered_datetime >= '$start_date' AND ordered_datetime <= '$end_date' AND status = '1' $outlet_sort ORDER BY ordered_datetime DESC ");
+        $orderResult = $this->db->query("SELECT * FROM orders WHERE $paid_sort ordered_datetime >= ? AND ordered_datetime <= ? AND status = '1' $outlet_sort ORDER BY ordered_datetime DESC ", $outlet_params);
         $orderRows = $orderResult->num_rows();
         if ($orderRows > 0) {
             $orderData = $orderResult->result();
@@ -543,7 +545,7 @@ class Reports extends CI_Controller
                 if($order_type == "1") {
 	                
 	                $payment_name_list		= "";
-	            	$ordPayResult 			= $this->db->query("SELECT * FROM order_payments WHERE order_id = '$order_id' ORDER BY id ");
+	            	$ordPayResult 			= $this->db->query("SELECT * FROM order_payments WHERE order_id = ? ORDER BY id ", array($order_id));
 					$ordPayData 			= $ordPayResult->result();
 					for($op = 0; $op < count($ordPayData); $op++) {
 						$ordPay_name 		= $ordPayData[$op]->payment_method_name;
@@ -627,7 +629,7 @@ class Reports extends CI_Controller
 			$start_dtm 		= $url_start." 00:00:00";
 			$end_dtm 		= $url_end." 23:59:59";
 			
-			$ordItemResult 	= $this->db->query("SELECT DISTINCT product_code FROM order_items WHERE created_datetime >= '$start_dtm' AND created_datetime <= '$end_dtm' AND status = '1' ORDER BY id DESC ");
+			$ordItemResult 	= $this->db->query("SELECT DISTINCT product_code FROM order_items WHERE created_datetime >= ? AND created_datetime <= ? AND status = '1' ORDER BY id DESC ", array($start_dtm, $end_dtm));
 			$ordItemData 	= $ordItemResult->result();
 			for($oit = 0; $oit < count($ordItemData); $oit++) {
 				$ordItem_pcode 		= $ordItemData[$oit]->product_code;
@@ -801,7 +803,7 @@ class Reports extends CI_Controller
 					
 					$pname 				= "-";
 					$pcat_name 			= "-";
-					$prodDtaResult		= $this->db->query("SELECT * FROM products WHERE code = '$pcode' ");
+					$prodDtaResult		= $this->db->query("SELECT * FROM products WHERE code = ?", array($pcode));
 					$prodDtaRows 		= $prodDtaResult->num_rows();
 					if($prodDtaRows == 1) {
 						$prodDtaData	= $prodDtaResult->result();
@@ -809,7 +811,7 @@ class Reports extends CI_Controller
 						$pcat_id 		= $prodDtaData[0]->category;
 						unset($prodDtaData);
 						
-						$catNameResult	= $this->db->query("SELECT name FROM category WHERE id = '$pcat_id' ");
+						$catNameResult	= $this->db->query("SELECT name FROM category WHERE id = ?", array($pcat_id));
 						$catNameRows 	= $catNameResult->num_rows();
 						if($catNameRows == 1) {
 							$catNameData= $catNameResult->result();
@@ -823,7 +825,7 @@ class Reports extends CI_Controller
 					unset($prodDtaResult);
 					
 					$total_sold_qty 	= 0;
-					$soldItemResult 	= $this->db->query("SELECT qty FROM order_items WHERE product_code = '$pcode' AND created_datetime >= '$start_dtm' AND created_datetime <= '$end_dtm' AND status = '1' ");
+					$soldItemResult 	= $this->db->query("SELECT qty FROM order_items WHERE product_code = ? AND created_datetime >= ? AND created_datetime <= ? AND status = '1' ", array($pcode, $start_dtm, $end_dtm));
 					$soldItemData 		= $soldItemResult->result();
 					for($s = 0; $s < count($soldItemData); $s++) {
 						$soldItem_qty	= $soldItemData[$s]->qty;

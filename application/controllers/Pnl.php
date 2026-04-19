@@ -441,13 +441,15 @@ class Pnl extends CI_Controller
         $paid_sort = '';
 
         $outlet_sort = '';
+        $pnl_params = array($start_date, $end_date);
         if ($url_outlet == '-') {
             $outlet_sort = ' AND outlet_id > 0 ';
         } else {
-            $outlet_sort = " AND outlet_id = '$url_outlet' ";
+            $outlet_sort = " AND outlet_id = ? ";
+            $pnl_params[] = $url_outlet;
         }
 
-        $orderResult = $this->db->query("SELECT * FROM orders WHERE ordered_datetime >= '$start_date' AND ordered_datetime <= '$end_date' $paid_sort $outlet_sort ORDER BY ordered_datetime DESC ");
+        $orderResult = $this->db->query("SELECT * FROM orders WHERE ordered_datetime >= ? AND ordered_datetime <= ? $paid_sort $outlet_sort ORDER BY ordered_datetime DESC ", $pnl_params);
         $orderRows = $orderResult->num_rows();
         if ($orderRows > 0) {
             $orderData = $orderResult->result();
@@ -465,7 +467,7 @@ class Pnl extends CI_Controller
 				
                 // Cost;
                 $each_sales_cost = 0;
-                $itemResult = $this->db->query("SELECT * FROM order_items WHERE order_id = '$order_id' ");
+                $itemResult = $this->db->query("SELECT * FROM order_items WHERE order_id = ?", array($order_id));
                 $itemData = $itemResult->result();
 
                 for ($t = 0; $t < count($itemData); ++$t) {
@@ -497,7 +499,7 @@ class Pnl extends CI_Controller
                 if($order_type == "1") {
 	                
 	                $payment_name_list		= "";
-	            	$ordPayResult 			= $this->db->query("SELECT * FROM order_payments WHERE order_id = '$order_id' ORDER BY id ");
+	            	$ordPayResult 			= $this->db->query("SELECT * FROM order_payments WHERE order_id = ? ORDER BY id ", array($order_id));
 					$ordPayData 			= $ordPayResult->result();
 					for($op = 0; $op < count($ordPayData); $op++) {
 						$ordPay_name 		= $ordPayData[$op]->payment_method_name;

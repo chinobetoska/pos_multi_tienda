@@ -382,7 +382,7 @@ class Gift_card extends CI_Controller
                 $url_start = $start_yea.'-'.$start_mon.'-'.$start_day;
             }
 
-            $ckGiftResult 		= $this->db->query("SELECT * FROM gift_card WHERE card_number = '$card_numb' ");
+            $ckGiftResult 		= $this->db->query("SELECT * FROM gift_card WHERE card_number = ?", array($card_numb));
             $ckGiftRows 		= $ckGiftResult->num_rows();
             if ($ckGiftRows == 0) {
 				$ins_data = array(
