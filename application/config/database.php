@@ -1,60 +1,43 @@
 <?php
- if (!defined('BASEPATH')) {
-     exit('No direct script access allowed');
- }
+if (!defined('BASEPATH')) {
+    exit('No direct script access allowed');
+}
 /*
 | -------------------------------------------------------------------
 | DATABASE CONNECTIVITY SETTINGS
 | -------------------------------------------------------------------
-| This file will contain the settings needed to access your database.
-|
-| For complete instructions please consult the "Database Connection"
-| page of the User Guide.
-|
+| Configurado para Hostinger (PHP 8.2+, MySQL)
+| Usar env-config.php para definir DB_HOST, DB_USER, DB_PASS, DB_NAME
+| antes de cargar esta aplicación.
 | -------------------------------------------------------------------
-| EXPLANATION OF VARIABLES
-| -------------------------------------------------------------------
-|
-|	['hostname'] The hostname of your database server.
-|	['username'] The username used to connect to the database
-|	['password'] The password used to connect to the database
-|	['database'] The name of the database you want to connect to
-|	['dbdriver'] The database type. ie: mysql.  Currently supported:
-                 mysql, mysqli, postgre, odbc, mssql, sqlite, oci8
-|	['dbprefix'] You can add an optional prefix, which will be added
-|				 to the table name when using the  Active Record class
-|	['pconnect'] TRUE/FALSE - Whether to use a persistent connection
-|	['db_debug'] TRUE/FALSE - Whether database errors should be displayed.
-|	['cache_on'] TRUE/FALSE - Enables/disables query caching
-|	['cachedir'] The path to the folder where cache files should be stored
-|	['char_set'] The character set used in communicating with the database
-|	['dbcollat'] The character collation used in communicating with the database
-|
-| The $active_group variable lets you choose which connection group to
-| make active.  By default there is only one group (the "default" group).
-|
-| The $active_record variables lets you determine whether or not to load
-| the active record class
 */
 
-// The following values will probably need to be changed.
-$db['default']['username'] = 'root';
-$db['default']['password'] = '';
-$db['default']['database'] = 'admin_mutltipos';
+// Cargar configuración de entorno si existe
+if (file_exists(FCPATH . 'env-config.php')) {
+    require_once FCPATH . 'env-config.php';
+}
 
-// The following values can probably stay the same.
-$db['default']['hostname'] = 'localhost';
-$db['default']['dbdriver'] = 'mysqli'; //Updated to latest driver.
+$db['default']['hostname'] = getenv('DB_HOST') ?: 'localhost';
+$db['default']['username'] = getenv('DB_USER') ?: 'root';
+$db['default']['password'] = getenv('DB_PASS') ?: '';
+$db['default']['database'] = getenv('DB_NAME') ?: 'admin_mutltipos';
+
+$db['default']['dbdriver'] = 'mysqli';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = false;
-$db['default']['db_debug'] = true;
+$db['default']['db_debug'] = false; // Deshabilitado en producción
 $db['default']['cache_on'] = false;
 $db['default']['cachedir'] = '';
-$db['default']['char_set'] = 'utf8';
-$db['default']['dbcollat'] = 'utf8_general_ci';
+$db['default']['char_set'] = 'utf8mb4'; // UTF8MB4 requerido por PHP 8 + MySQL moderno
+$db['default']['dbcollat'] = 'utf8mb4_general_ci';
+$db['default']['swap_pre'] = '';
+$db['default']['encrypt'] = false;
+$db['default']['compress'] = false;
+$db['default']['stricton'] = false;
+$db['default']['failover'] = array();
+$db['default']['save_queries'] = true;
 
 $active_group = 'default';
 $active_record = true;
 
 /* End of file database.php */
-/* Location: ./application/config/database.php */

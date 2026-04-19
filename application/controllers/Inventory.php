@@ -337,7 +337,7 @@ class Inventory extends CI_Controller
             if ($new_qty != 0) {
 
                 // Check Id;
-                $getInvDtaResult = $this->db->query("SELECT * FROM inventory WHERE product_code = '$pcode' AND outlet_id = '$outlet_id' ");
+                $getInvDtaResult = $this->db->query("SELECT * FROM inventory WHERE product_code = ? AND outlet_id = ?", array($pcode, $outlet_id));
                 $getInvDtaRows = $getInvDtaResult->num_rows();
                 if ($getInvDtaRows == 1) {
                     $getInvDtaData = $getInvDtaResult->result();
@@ -604,7 +604,7 @@ class Inventory extends CI_Controller
             $each_row_qty 	= $getAllInvData[$g]->qty;
 
             $each_cost 		= 0;
-            $getCostResult 	= $this->db->query("SELECT purchase_price FROM products WHERE code = '$each_row_code' ");
+            $getCostResult 	= $this->db->query("SELECT purchase_price FROM products WHERE code = ?", array($each_row_code));
             $getCostData 	= $getCostResult->result();
 
             $each_cost 		= $getCostData[0]->purchase_price;

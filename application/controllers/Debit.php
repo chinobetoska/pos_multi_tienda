@@ -440,7 +440,7 @@ class Debit extends CI_Controller
 	        $tm 				= date('Y-m-d H:i:s', time());
 			
 			$pay_meth_name 		= "";
-			$payNameResult 		= $this->db->query("SELECT name FROM payment_method WHERE id = '$payment_method' ");
+			$payNameResult 		= $this->db->query("SELECT name FROM payment_method WHERE id = ?", array($payment_method));
 			$payNameRows 		= $payNameResult->num_rows();
 			if($payNameRows == 1) {
 				$payNameData 	= $payNameResult->result();
@@ -450,7 +450,7 @@ class Debit extends CI_Controller
 			unset($payNameRows);
 			unset($payNameResult);
 			
-			$orderDtaResult 	= $this->db->query("SELECT grandtotal FROM orders WHERE id = '$order_id' ");
+			$orderDtaResult 	= $this->db->query("SELECT grandtotal FROM orders WHERE id = ?", array($order_id));
 			$orderDtaData 		= $orderDtaResult->result();
 			$order_grandTotal	= $orderDtaData[0]->grandtotal;
 			unset($orderDtaData);
@@ -460,7 +460,7 @@ class Debit extends CI_Controller
 			$vt_status 			= 0;
 			
 			$curr_total_paid_amt= 0;
-			$loadPayAmtResult 	= $this->db->query("SELECT payment_amount FROM order_payments WHERE order_id = '$order_id' ");
+			$loadPayAmtResult 	= $this->db->query("SELECT payment_amount FROM order_payments WHERE order_id = ?", array($order_id));
 			$loadPayAmtData 	= $loadPayAmtResult->result();
 			for($lop = 0; $lop < count($loadPayAmtData); $lop++) {
 				$curr_total_paid_amt	+= $loadPayAmtData[$lop]->payment_amount;
@@ -701,7 +701,7 @@ class Debit extends CI_Controller
             $unpaid_amt 		= 0;
 		    $total_paid_amt 	= 0;
 		    
-		    $orderPaymentResult	= $this->db->query("SELECT * FROM order_payments WHERE order_id = '$order_id' ");
+		    $orderPaymentResult	= $this->db->query("SELECT * FROM order_payments WHERE order_id = ?", array($order_id));
 		    $orderPaymentData 	= $orderPaymentResult->result();
 		    for($opd = 0; $opd < count($orderPaymentData); $opd++) {
 			    $total_paid_amt	+= $orderPaymentData[$opd]->payment_amount;

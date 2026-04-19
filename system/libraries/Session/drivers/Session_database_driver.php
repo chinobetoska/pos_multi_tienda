@@ -126,7 +126,8 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 	 * @param	string	$name		Session cookie name, unused
 	 * @return	bool
 	 */
-	public function open($save_path, $name)
+	#[\ReturnTypeWillChange]
+	public function open($save_path, $name): bool
 	{
 		if (empty($this->_db->conn_id) && ! $this->_db->db_connect())
 		{
@@ -148,7 +149,8 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 	 * @param	string	$session_id	Session ID
 	 * @return	string	Serialized session data
 	 */
-	public function read($session_id)
+	#[\ReturnTypeWillChange]
+	public function read($session_id): string|false
 	{
 		if ($this->_get_lock($session_id) !== FALSE)
 		{
@@ -205,7 +207,8 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 	 * @param	string	$session_data	Serialized session data
 	 * @return	bool
 	 */
-	public function write($session_id, $session_data)
+	#[\ReturnTypeWillChange]
+	public function write($session_id, $session_data): bool
 	{
 		// Prevent previous QB calls from messing with our queries
 		$this->_db->reset_query();
@@ -277,7 +280,8 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 	 *
 	 * @return	bool
 	 */
-	public function close()
+	#[\ReturnTypeWillChange]
+	public function close(): bool
 	{
 		return ($this->_lock && ! $this->_release_lock())
 			? $this->_fail()
@@ -294,7 +298,8 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 	 * @param	string	$session_id	Session ID
 	 * @return	bool
 	 */
-	public function destroy($session_id)
+	#[\ReturnTypeWillChange]
+	public function destroy($session_id): bool
 	{
 		if ($this->_lock)
 		{
@@ -332,14 +337,19 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 	 * @param	int 	$maxlifetime	Maximum lifetime of sessions
 	 * @return	bool
 	 */
-	public function gc($maxlifetime)
+	#[\ReturnTypeWillChange]
+	public function gc($maxlifetime): int|false
 	{
 		// Prevent previous QB calls from messing with our queries
 		$this->_db->reset_query();
 
-		return ($this->_db->delete($this->_config['save_path'], 'timestamp < '.(time() - $maxlifetime)))
-			? $this->_success
-			: $this->_fail();
+		if ($this->_db->delete($this->_config['save_path'], 'timestamp < '.(time() - $maxlifetime)))
+		{
+			// PHP 8 requires int|false; return affected rows count (>= 0) on success
+			return (int) $this->_db->affected_rows();
+		}
+
+		return FALSE;
 	}
 
 	// --------------------------------------------------------------------

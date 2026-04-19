@@ -1042,7 +1042,7 @@ class Expenses extends CI_Controller
             redirect(base_url().'expenses/addNewExpenses');
         } else {
 	        $outlet_name 			= "";
-	        $outletNameResult 		= $this->db->query("SELECT * FROM outlets WHERE id = '$outlet' ");
+	        $outletNameResult 		= $this->db->query("SELECT * FROM outlets WHERE id = ?", array($outlet));
 	        $outletNameData 		= $outletNameResult->result();
 	        $outlet_name 			= $outletNameData[0]->name;
 	        unset($outletNameData);
@@ -1261,7 +1261,7 @@ class Expenses extends CI_Controller
         if ($user_role == '1') {
             $expResult = $this->db->query("SELECT * FROM expenses WHERE status = '1' ORDER BY date DESC ");
         } else {
-            $expResult = $this->db->query("SELECT * FROM expenses WHERE status = '1' AND outlet_id = '$user_outlet' ORDER BY date DESC ");
+            $expResult = $this->db->query("SELECT * FROM expenses WHERE status = '1' AND outlet_id = ? ORDER BY date DESC ", array($user_outlet));
         }
         $expData = $expResult->result();
 
@@ -1504,16 +1504,19 @@ class Expenses extends CI_Controller
         $total_exp_amt = 0;
 
         $sort = '';
+        $sort_params = array();
         $date_sort = '';
 
         if (!empty($search_expenses_numb)) {
-            $sort .= " AND expenses_number LIKE '$search_expenses_numb%' ";
+            $sort .= " AND expenses_number LIKE ? ";
+            $sort_params[] = $search_expenses_numb . '%';
         }
         if (!empty($search_outlet)) {
             if ($search_outlet == '-') {
                 $sort .= ' AND outlet_id > 0 ';
             } else {
-                $sort .= " AND outlet_id = '$search_outlet' ";
+                $sort .= " AND outlet_id = ? ";
+                $sort_params[] = $search_outlet;
             }
         }
         if (!empty($search_start_date) && !empty($search_end_date)) {
@@ -1673,10 +1676,12 @@ class Expenses extends CI_Controller
             //$start_date = $url_start.' 00:00:00';
             //$end_date 	= $url_end.' 23:59:59';
 
-            $date_sort = " AND date >= '$url_start' AND date <= '$url_end' ";
+            $date_sort = " AND date >= ? AND date <= ? ";
+            $sort_params[] = $url_start;
+            $sort_params[] = $url_end;
         }
 
-        $expResult = $this->db->query("SELECT * FROM expenses WHERE status = '1' $sort $date_sort ORDER BY date DESC ");
+        $expResult = $this->db->query("SELECT * FROM expenses WHERE status = '1' $sort $date_sort ORDER BY date DESC ", $sort_params);
         $expData = $expResult->result();
 
         for ($e = 0; $e < count($expData); ++$e) {

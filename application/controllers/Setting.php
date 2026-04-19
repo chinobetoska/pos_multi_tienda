@@ -1652,7 +1652,7 @@ class Setting extends CI_Controller
 
     public function encryptPassword($password)
     {
-        return md5("$password");
+        return password_hash($password, PASSWORD_BCRYPT);
     }
 
     public function editor($path, $width)

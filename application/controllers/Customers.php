@@ -894,7 +894,7 @@ class Customers extends CI_Controller
         $total_tax_amt = 0;
         $total_grand_amt = 0;
 
-        $orderResult = $this->db->query("SELECT * FROM orders WHERE customer_id = '$cust_id' ORDER BY id DESC ");
+        $orderResult = $this->db->query("SELECT * FROM orders WHERE customer_id = ? ORDER BY id DESC ", array($cust_id));
         $orderData = $orderResult->result();
         for ($d = 0; $d < count($orderData); ++$d) {
             $order_id = $orderData[$d]->id;
@@ -918,7 +918,7 @@ class Customers extends CI_Controller
 
                 $type_name = 'Sale';
 
-                $oItemResult = $this->db->query("SELECT * FROM order_items WHERE order_id = '$order_id' ORDER BY id ");
+                $oItemResult = $this->db->query("SELECT * FROM order_items WHERE order_id = ? ORDER BY id ", array($order_id));
                 $oItemRows = $oItemResult->num_rows();
                 if ($oItemRows > 0) {
                     $oItemData = $oItemResult->result();
@@ -944,7 +944,7 @@ class Customers extends CI_Controller
             } elseif ($order_type == '2') {    // Return;
                 $type_name = 'Return';
 
-                $rItemResult = $this->db->query("SELECT * FROM return_items WHERE order_id = '$order_id' ORDER BY id ");
+                $rItemResult = $this->db->query("SELECT * FROM return_items WHERE order_id = ? ORDER BY id ", array($order_id));
                 $rItemRows = $rItemResult->num_rows();
                 if ($rItemRows > 0) {
                     $rItemData = $rItemResult->result();
@@ -1237,18 +1237,22 @@ class Customers extends CI_Controller
         $jj = 3;
 
         $sort = '';
+        $sort_params = array();
 
         if (!empty($search_name)) {
-            $sort .= " AND fullname LIKE '%$search_name%' ";
+            $sort .= " AND fullname LIKE ? ";
+            $sort_params[] = '%' . $search_name . '%';
         }
         if (!empty($search_mobile)) {
-            $sort .= " AND mobile LIKE '$search_mobile%' ";
+            $sort .= " AND mobile LIKE ? ";
+            $sort_params[] = $search_mobile . '%';
         }
         if (!empty($search_email)) {
-            $sort .= " AND email LIKE '$search_email%' ";
+            $sort .= " AND email LIKE ? ";
+            $sort_params[] = $search_email . '%';
         }
 
-        $custResult = $this->db->query("SELECT * FROM customers WHERE created_datetime != '0000-00-00 00:00:00' $sort ORDER BY fullname ");
+        $custResult = $this->db->query("SELECT * FROM customers WHERE created_datetime != '0000-00-00 00:00:00' $sort ORDER BY fullname ", $sort_params);
         $custData = $custResult->result();
         for ($i = 0; $i < count($custData); ++$i) {
             $cust_id = $custData[$i]->id;

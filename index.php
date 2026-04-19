@@ -1,4 +1,10 @@
 <?php
+// Verificar versión PHP compatible con Hostinger
+if (version_compare(PHP_VERSION, '8.2.0', '<')) {
+    header('HTTP/1.1 500 Internal Server Error');
+    exit('Este sistema requiere PHP 8.2 o superior. Versión actual: ' . PHP_VERSION);
+}
+
 /**
  * CodeIgniter.
  *
