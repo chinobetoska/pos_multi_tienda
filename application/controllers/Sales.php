@@ -249,7 +249,7 @@ class Sales extends CI_Controller
         $this->Constant_model->deleteData('orders', $order_id);
 
         if ($order_type == '1') {
-            $ordItemResult = $this->db->query("SELECT * FROM order_items WHERE order_id = '$order_id' ");
+            $ordItemResult = $this->db->query("SELECT * FROM order_items WHERE order_id = ?", array($order_id));
             $ordItemData = $ordItemResult->result();
             for ($i = 0; $i < count($ordItemData); ++$i) {
                 $oitem_id = $ordItemData[$i]->id;
@@ -257,7 +257,7 @@ class Sales extends CI_Controller
                 $new_qty = $ordItemData[$i]->qty;
 
                 // Check Id;
-                $getInvDtaResult = $this->db->query("SELECT * FROM inventory WHERE product_code = '$pcode' AND outlet_id = '$order_outlet_id' ");
+                $getInvDtaResult = $this->db->query("SELECT * FROM inventory WHERE product_code = ? AND outlet_id = ?", array($pcode, $order_outlet_id));
                 $getInvDtaRows = $getInvDtaResult->num_rows();
                 if ($getInvDtaRows == 1) {
                     $getInvDtaData = $getInvDtaResult->result();
@@ -299,7 +299,7 @@ class Sales extends CI_Controller
             unset($ordItemData);
             
             // Order Payment -- START;
-            $ordPayResult 	= $this->db->query("SELECT * FROM order_payments WHERE order_id = '$order_id' ");
+            $ordPayResult 	= $this->db->query("SELECT * FROM order_payments WHERE order_id = ?", array($order_id));
             $ordPayData 	= $ordPayResult->result();
             for($pd = 0; $pd < count($ordPayData); $pd++) {
 	            $ordPay_id 	= $ordPayData[$pd]->id;
@@ -314,7 +314,7 @@ class Sales extends CI_Controller
         }
 
         if ($order_type == '2') {
-            $retItemResult = $this->db->query("SELECT * FROM return_items WHERE order_id = '$order_id' ");
+            $retItemResult = $this->db->query("SELECT * FROM return_items WHERE order_id = ?", array($order_id));
             $retItemData = $retItemResult->result();
             for ($r = 0; $r < count($retItemData); ++$r) {
                 $ret_id = $retItemData[$r]->id;
@@ -325,7 +325,7 @@ class Sales extends CI_Controller
                 if ($ret_cond == '1') {
 
                      // Check Id;
-                    $getInvDtaResult = $this->db->query("SELECT * FROM inventory WHERE product_code = '$ret_pcode' AND outlet_id = '$order_outlet_id' ");
+                    $getInvDtaResult = $this->db->query("SELECT * FROM inventory WHERE product_code = ? AND outlet_id = ?", array($ret_pcode, $order_outlet_id));
                     $getInvDtaRows = $getInvDtaResult->num_rows();
                     if ($getInvDtaRows == 1) {
                         $getInvDtaData = $getInvDtaResult->result();
@@ -560,9 +560,9 @@ class Sales extends CI_Controller
         $total_grand_amt = 0;
 
         if ($user_role == '1') {
-            $salesResult = $this->db->query("SELECT * FROM orders WHERE ordered_datetime >= '$today_start' AND ordered_datetime <= '$today_end' ORDER BY id DESC ");
+            $salesResult = $this->db->query("SELECT * FROM orders WHERE ordered_datetime >= ? AND ordered_datetime <= ? ORDER BY id DESC ", array($today_start, $today_end));
         } else {
-            $salesResult = $this->db->query("SELECT * FROM orders WHERE ordered_datetime >= '$today_start' AND ordered_datetime <= '$today_end' AND outlet_id = '$user_outlet' ORDER BY id DESC ");
+            $salesResult = $this->db->query("SELECT * FROM orders WHERE ordered_datetime >= ? AND ordered_datetime <= ? AND outlet_id = ? ORDER BY id DESC ", array($today_start, $today_end, $user_outlet));
         }
 
         $salesData = $salesResult->result();

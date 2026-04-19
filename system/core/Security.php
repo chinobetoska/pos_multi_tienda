@@ -628,12 +628,9 @@ class CI_Security {
 			}
 		}
 
-		// Unfortunately, none of the following PRNGs is guaranteed to exist ...
-		if (defined('MCRYPT_DEV_URANDOM') && ($output = mcrypt_create_iv($length, MCRYPT_DEV_URANDOM)) !== FALSE)
-		{
-			return $output;
-		}
-
+		// Note: mcrypt_create_iv() was removed in PHP 8.0. MCRYPT_DEV_URANDOM is undefined
+		// on PHP 8.x so this block is intentionally skipped. The random_bytes() call above
+		// covers all PHP 8.x environments. The block below covers older environments.
 
 		if (is_readable('/dev/urandom') && ($fp = fopen('/dev/urandom', 'rb')) !== FALSE)
 		{

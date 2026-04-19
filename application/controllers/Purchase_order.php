@@ -550,7 +550,7 @@ class Purchase_order extends CI_Controller
         $id = $this->input->get('id');
         $po_numb = $this->input->get('po_numb');
 
-        $ckExistResult = $this->db->query("SELECT * FROM purchase_order WHERE id = '$id' ");
+        $ckExistResult = $this->db->query("SELECT * FROM purchase_order WHERE id = ?", array($id));
         $ckExistRows = $ckExistResult->num_rows();
 
         if ($ckExistRows == 1) {
@@ -581,7 +581,7 @@ class Purchase_order extends CI_Controller
         $us_id = $this->session->userdata('user_id');
         $tm = date('Y-m-d H:i:s', time());
 
-        $existItemResult = $this->db->query("SELECT * FROM purchase_order_items WHERE po_id = '$id' ORDER BY id ASC ");
+        $existItemResult = $this->db->query("SELECT * FROM purchase_order_items WHERE po_id = ? ORDER BY id ASC ", array($id));
         $existItemData = $existItemResult->result();
         for ($ex = 0; $ex < count($existItemData); ++$ex) {
             $ex_item_id = $existItemData[$ex]->id;
@@ -600,7 +600,7 @@ class Purchase_order extends CI_Controller
                     $this->Constant_model->updateData('purchase_order_items', $upd_po_item_data, $ex_item_id);
 
                     // Update Product Cost;
-                    $pcodeIdResult = $this->db->query("SELECT * FROM products WHERE code = '$ex_pcode' ");
+                    $pcodeIdResult = $this->db->query("SELECT * FROM products WHERE code = ?", array($ex_pcode));
                     $pcodeIdData = $pcodeIdResult->result();
                     $pcode_id = $pcodeIdData[0]->id;
 
@@ -610,7 +610,7 @@ class Purchase_order extends CI_Controller
                     $this->Constant_model->updateData('products', $upd_product_cost_data, $pcode_id);
 
                     // Update Product Inventory;
-                    $ckInvResult = $this->db->query("SELECT * FROM inventory WHERE product_code = '$ex_pcode' AND outlet_id = '$outlet_id' ");
+                    $ckInvResult = $this->db->query("SELECT * FROM inventory WHERE product_code = ? AND outlet_id = ?", array($ex_pcode, $outlet_id));
                     $ckInvRows = $ckInvResult->num_rows();
                     if ($ckInvRows == 1) {
                         $ckInvData = $ckInvResult->result();
@@ -640,7 +640,7 @@ class Purchase_order extends CI_Controller
         unset($existItemData);
 
         // Check Item Received or Not;
-        $ckAllItemResult = $this->db->query("SELECT * FROM purchase_order_items WHERE po_id = '$id' AND received_qty = '0' ");
+        $ckAllItemResult = $this->db->query("SELECT * FROM purchase_order_items WHERE po_id = ? AND received_qty = '0' ", array($id));
         $ckAllItemRows = $ckAllItemResult->num_rows();
 
         if ($ckAllItemRows == 0) {
@@ -690,7 +690,7 @@ class Purchase_order extends CI_Controller
         } else {
 
             // Check PO Number;
-            $ckPOResult = $this->db->query("SELECT * FROM purchase_order WHERE po_number = '$po_numb' AND id != '$id' ");
+            $ckPOResult = $this->db->query("SELECT * FROM purchase_order WHERE po_number = ? AND id != ?", array($po_numb, $id));
             $ckPORows = $ckPOResult->num_rows();
             if ($ckPORows > 0) {
                 $this->session->set_flashdata('alert_msg', array('failure', 'Create Purchase Order', "Purchase Order Number : $po_numb is already existing in the system! Please try another one!"));
@@ -729,7 +729,7 @@ class Purchase_order extends CI_Controller
                 $this->Constant_model->updateData('purchase_order', $upd_po_data, $id);
 
                 // Update Existing Item -- START;
-                $existItemResult = $this->db->query("SELECT * FROM purchase_order_items WHERE po_id = '$id' ORDER BY id ASC ");
+                $existItemResult = $this->db->query("SELECT * FROM purchase_order_items WHERE po_id = ? ORDER BY id ASC ", array($id));
                 $existItemData = $existItemResult->result();
                 for ($ex = 0; $ex < count($existItemData); ++$ex) {
                     $ex_item_id = $existItemData[$ex]->id;
@@ -807,7 +807,7 @@ class Purchase_order extends CI_Controller
             */
 
             // Check PO Number;
-            $ckPOResult = $this->db->query("SELECT * FROM purchase_order WHERE po_number = '$po_numb' ");
+            $ckPOResult = $this->db->query("SELECT * FROM purchase_order WHERE po_number = ?", array($po_numb));
             $ckPORows = $ckPOResult->num_rows();
             if ($ckPORows > 0) {
                 $this->session->set_flashdata('alert_msg', array('failure', 'Create Purchase Order', "Purchase Order Number : $po_numb is already existing in the system! Please try another one!"));
@@ -915,7 +915,7 @@ class Purchase_order extends CI_Controller
 
         $array = array();
 
-        $searchResult = $this->db->query("SELECT * FROM products WHERE code LIKE '$q%' OR name LIKE '%$q%' ");
+        $searchResult = $this->db->query("SELECT * FROM products WHERE code LIKE ? OR name LIKE ?", array($q . '%', '%' . $q . '%'));
         $searchData = $searchResult->result();
 
         for ($s = 0; $s < count($searchData); ++$s) {
@@ -938,7 +938,7 @@ class Purchase_order extends CI_Controller
     {
         $pcode = $this->input->get('pcode');
 
-        $ckPcodeResult = $this->db->query("SELECT * FROM products WHERE code = '$pcode' ");
+        $ckPcodeResult = $this->db->query("SELECT * FROM products WHERE code = ?", array($pcode));
         $ckPcodeRows = $ckPcodeResult->num_rows();
 
         if ($ckPcodeRows == 0) {

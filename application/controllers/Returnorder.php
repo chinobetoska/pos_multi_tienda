@@ -643,7 +643,7 @@ class Returnorder extends CI_Controller
 
                         // Inventory Update -- START ;
                         if ($cond_status == '1') {
-                            $getInvDtaResult = $this->db->query("SELECT * FROM inventory WHERE product_code = '$pcode' AND outlet_id = '$outlet' ");
+                            $getInvDtaResult = $this->db->query("SELECT * FROM inventory WHERE product_code = ? AND outlet_id = ?", array($pcode, $outlet));
                             $getInvDtaRows = $getInvDtaResult->num_rows();
                             if ($getInvDtaRows == 1) {
                                 $getInvDtaData = $getInvDtaResult->result();
@@ -688,7 +688,7 @@ class Returnorder extends CI_Controller
 
         $array = array();
 
-        $searchResult = $this->db->query("SELECT * FROM products WHERE code LIKE '$q%' OR name LIKE '%$q%' ");
+        $searchResult = $this->db->query("SELECT * FROM products WHERE code LIKE ? OR name LIKE ?", array($q . '%', '%' . $q . '%'));
         $searchData = $searchResult->result();
 
         for ($s = 0; $s < count($searchData); ++$s) {
@@ -711,7 +711,7 @@ class Returnorder extends CI_Controller
     {
         $pcode = $this->input->get('pcode');
 
-        $ckPcodeResult = $this->db->query("SELECT * FROM products WHERE code = '$pcode' ");
+        $ckPcodeResult = $this->db->query("SELECT * FROM products WHERE code = ?", array($pcode));
         $ckPcodeRows = $ckPcodeResult->num_rows();
 
         if ($ckPcodeRows == 0) {
@@ -915,20 +915,23 @@ class Returnorder extends CI_Controller
         $end_date = $url_end.' 23:59:59';
 
         $paid_sort = '';
+        $filter_params = array($start_date, $end_date);
         if ($url_paid_by == '-') {
             $paid_sort = ' AND payment_method > 0 ';
         } else {
-            $paid_sort = " AND payment_method = '$url_paid_by' ";
+            $paid_sort = " AND payment_method = ? ";
+            $filter_params[] = $url_paid_by;
         }
 
         $outlet_sort = '';
         if ($url_outlet == '-') {
             $outlet_sort = ' AND outlet_id > 0 ';
         } else {
-            $outlet_sort = " AND outlet_id = '$url_outlet' ";
+            $outlet_sort = " AND outlet_id = ? ";
+            $filter_params[] = $url_outlet;
         }
 
-        $orderResult = $this->db->query("SELECT * FROM orders WHERE ordered_datetime >= '$start_date' AND ordered_datetime <= '$end_date' AND status = '2' $paid_sort $outlet_sort ORDER BY ordered_datetime DESC ");
+        $orderResult = $this->db->query("SELECT * FROM orders WHERE ordered_datetime >= ? AND ordered_datetime <= ? AND status = '2' $paid_sort $outlet_sort ORDER BY ordered_datetime DESC ", $filter_params);
         $orderRows = $orderResult->num_rows();
         if ($orderRows > 0) {
             $orderData = $orderResult->result();

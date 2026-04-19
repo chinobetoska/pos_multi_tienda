@@ -24,8 +24,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-// Si tu carpeta en htdocs se llama "puntodeventamultitiendaspos"
-$config['base_url'] = 'http://localhost/puntodeventamultitiendaspos/';      // Please type your Project URL;
+// URL base dinámica — funciona en localhost y en Hostinger sin cambios
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$config['base_url'] = $protocol . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/';
 
 /*
 |--------------------------------------------------------------------------
@@ -215,7 +216,7 @@ $config['directory_trigger'] = 'd';
 | your log files will fill up very fast.
 |
 */
-$config['log_threshold'] = 0;
+$config['log_threshold'] = 1;
 
 /*
 |--------------------------------------------------------------------------
@@ -316,7 +317,7 @@ $config['cache_query_string'] = false;
 | https://codeigniter.com/user_guide/libraries/encryption.html
 |
 */
-$config['encryption_key'] = '';
+$config['encryption_key'] = 'a3f8b1c9d7e2f4a6b8c0d5e7f9a1b3c5';
 
 /*
 |--------------------------------------------------------------------------
@@ -442,7 +443,7 @@ $config['global_xss_filtering'] = false;
 | 'csrf_regenerate' = Regenerate token on every submission
 | 'csrf_exclude_uris' = Array of URIs which ignore CSRF checks
 */
-$config['csrf_protection'] = false;
+$config['csrf_protection'] = false; // AJAX endpoints requieren refactoring antes de activar
 $config['csrf_token_name'] = 'csrf_test_name';
 $config['csrf_cookie_name'] = 'csrf_cookie_name';
 $config['csrf_expire'] = 7200;

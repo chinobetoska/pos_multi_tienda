@@ -308,7 +308,7 @@ class Pos extends CI_Controller
             $user_id = $this->session->userdata('user_id');
             $tm = date('Y-m-d H:i:s', time());
 
-            $ckProdCodeResult = $this->db->query("SELECT * FROM products WHERE code = '$pop_pcode' ");
+            $ckProdCodeResult = $this->db->query("SELECT * FROM products WHERE code = ?", array($pop_pcode));
             $ckProdCodeRows = $ckProdCodeResult->num_rows();
 
             if ($ckProdCodeRows > 0) {
@@ -501,7 +501,7 @@ class Pos extends CI_Controller
                         $cost = $pcodeDtaData[0]->purchase_price;
                     } else {
                         if ($suspend_id > 0) {
-                            $ckSusItemResult = $this->db->query("SELECT * FROM suspend_items WHERE suspend_id = '$suspend_id' AND product_code = '$pcode' ");
+                            $ckSusItemResult = $this->db->query("SELECT * FROM suspend_items WHERE suspend_id = ? AND product_code = ?", array($suspend_id, $pcode));
                             $ckSusItemRows = $ckSusItemResult->num_rows();
                             if ($ckSusItemRows == 1) {
                                 $ckSusItemData = $ckSusItemResult->result();
@@ -569,7 +569,7 @@ class Pos extends CI_Controller
 
             // Gift Card;
             if (!empty($card_numb)) {
-                $ckGiftResult = $this->db->query("SELECT * FROM gift_card WHERE card_number = '$card_numb' ");
+                $ckGiftResult = $this->db->query("SELECT * FROM gift_card WHERE card_number = ?", array($card_numb));
                 $ckGiftRows = $ckGiftResult->num_rows();
                 if ($ckGiftRows == 1) {
                     $ckGiftData = $ckGiftResult->result();
@@ -636,13 +636,14 @@ class Pos extends CI_Controller
         $search = $this->input->get('q');
 
         if (!empty($search)) {
-            $searchResult = $this->db->query("SELECT * FROM suspend WHERE (ref_number LIKE '%$search%' || fullname LIKE '%$search%' || email LIKE '%$search%' || mobile LIKE '%$search%' ) AND status = '0' ");
+            $search_param = '%' . $search . '%';
+            $searchResult = $this->db->query("SELECT * FROM suspend WHERE (ref_number LIKE ? || fullname LIKE ? || email LIKE ? || mobile LIKE ? ) AND status = '0' ", array($search_param, $search_param, $search_param, $search_param));
 
             /*
             if ($role_id == '1') {
-                $searchResult = $this->db->query("SELECT * FROM suspend WHERE (ref_number LIKE '%$search%' || fullname LIKE '%$search%' || email LIKE '%$search%' || mobile LIKE '%$search%' ) AND status = '0' ");
+                $searchResult = $this->db->query("SELECT * FROM suspend WHERE (ref_number LIKE ? || fullname LIKE ? || email LIKE ? || mobile LIKE ? ) AND status = '0' ", array($search_param, $search_param, $search_param, $search_param));
             } else {
-                $searchResult = $this->db->query("SELECT * FROM suspend WHERE (ref_number LIKE '%$search%' || fullname LIKE '%$search%' || email LIKE '%$search%' || mobile LIKE '%$search%' ) AND outlet_id = '$outlet_id' AND status = '0' ");
+                $searchResult = $this->db->query("SELECT * FROM suspend WHERE (ref_number LIKE ? || fullname LIKE ? || email LIKE ? || mobile LIKE ? ) AND outlet_id = ? AND status = '0' ", array($search_param, $search_param, $search_param, $search_param, $outlet_id));
             }
             */
 
@@ -678,7 +679,7 @@ class Pos extends CI_Controller
             if ($role_id == '1') {
                 $searchResult = $this->db->query("SELECT * FROM suspend WHERE status = '0' ORDER BY created_datetime DESC ");
             } else {
-                $searchResult = $this->db->query("SELECT * FROM suspend WHERE status = '0' AND outlet_id = '$outlet_id' ORDER BY created_datetime DESC ");
+                $searchResult = $this->db->query("SELECT * FROM suspend WHERE status = '0' AND outlet_id = ? ORDER BY created_datetime DESC ", array($outlet_id));
             }
 
             $searchRows = $searchResult->num_rows();
@@ -769,14 +770,14 @@ class Pos extends CI_Controller
         $unpaid_amt 		= 0;
 	    $total_paid_amt 	= 0;
 	    
-	    $orderPaymentResult	= $this->db->query("SELECT * FROM order_payments WHERE order_id = '$id' ");
+	    $orderPaymentResult	= $this->db->query("SELECT * FROM order_payments WHERE order_id = ?", array($id));
 	    $orderPaymentData 	= $orderPaymentResult->result();
 	    for($opd = 0; $opd < count($orderPaymentData); $opd++) {
 		    $total_paid_amt	+= $orderPaymentData[$opd]->payment_amount;
 	    }
 	    unset($orderPaymentData);
 	    unset($orderPaymentResult);
-	    
+
 	    $unpaid_amt 		= $total_paid_amt - $grandTotal;
 	    
 
@@ -924,7 +925,7 @@ class Pos extends CI_Controller
         $total_item_amt = 0;
         $total_item_qty = 0;
 
-        $orderItemResult = $this->db->query("SELECT * FROM order_items WHERE order_id = '$id' ORDER BY id ");
+        $orderItemResult = $this->db->query("SELECT * FROM order_items WHERE order_id = ? ORDER BY id ", array($id));
         $orderItemData = $orderItemResult->result();
         for ($i = 0; $i < count($orderItemData); ++$i) {
             $pcode = $orderItemData[$i]->product_code;
@@ -1028,7 +1029,7 @@ class Pos extends CI_Controller
 					';
         }
         
-        $ordPayResult 		= $this->db->query("SELECT * FROM order_payments WHERE order_id = '$id' ORDER BY id ");
+        $ordPayResult 		= $this->db->query("SELECT * FROM order_payments WHERE order_id = ? ORDER BY id ", array($id));
 		$ordPayData 		= $ordPayResult->result();
 		for($op = 0; $op < count($ordPayData); $op++) {
 			$ordPay_key 	= $ordPayData[$op]->payment_method_id;
@@ -1176,7 +1177,7 @@ class Pos extends CI_Controller
         if ($minutes <= 10) {
             $custData = $this->Constant_model->getDataAll('customers', 'id', 'DESC');
         } else {
-            $custResult = $this->db->query("select * from customers order by case when id = '$site_default_cust_id' then 1 else 2 end ");
+            $custResult = $this->db->query("select * from customers order by case when id = ? then 1 else 2 end ", array($site_default_cust_id));
             $custData = $custResult->result();
         }
 
@@ -1204,7 +1205,7 @@ class Pos extends CI_Controller
 
         $today = date('Y-m-d', time());
 
-        $ckgiftResult = $this->db->query("SELECT * FROM gift_card WHERE card_number = '$card_numb' ");
+        $ckgiftResult = $this->db->query("SELECT * FROM gift_card WHERE card_number = ?", array($card_numb));
         $ckgiftRows = $ckgiftResult->num_rows();
         if ($ckgiftRows == 1) {
             $ckgiftData = $ckgiftResult->result();
@@ -1264,14 +1265,14 @@ class Pos extends CI_Controller
         $total_amt 		= 0;
 
         
-        $orderPayResult	= $this->db->query("SELECT * FROM order_payments WHERE created_datetime >= '$today_start' AND created_datetime <= '$today_end' AND status = '1' ");
+        $orderPayResult	= $this->db->query("SELECT * FROM order_payments WHERE created_datetime >= ? AND created_datetime <= ? AND status = '1' ", array($today_start, $today_end));
         $orderPayData 	= $orderPayResult->result();
         for($d = 0; $d < count($orderPayData); $d++) {
 	        $orderPay_order_id 		= $orderPayData[$d]->order_id;
 	        $orderPay_meth_key 		= $orderPayData[$d]->payment_method_id;
 	        $orderPay_amount 		= $orderPayData[$d]->payment_amount;
 	        
-	        $orderResult 			= $this->db->query("SELECT id FROM orders WHERE id = '$orderPay_order_id' AND outlet_id = '$outlet_id' ");
+	        $orderResult 			= $this->db->query("SELECT id FROM orders WHERE id = ? AND outlet_id = ?", array($orderPay_order_id, $outlet_id));
 	        $orderRows 				= $orderResult->num_rows();
 	        if($orderRows == 1) {
 		        
